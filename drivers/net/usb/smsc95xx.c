@@ -607,8 +607,19 @@ static int smsc95xx_ioctl(struct net_device *netdev, struct ifreq *rq, int cmd)
 
 static void smsc95xx_init_mac_address(struct usbnet *dev)
 {
+	int i;
+	/* Hardcode MAC */
+	for (i = 0; i < 6; ++i) {
+		dev->net->dev_addr[i] = i;
+	}
+	/* clear multicast bit */
+	dev->net->dev_addr[0] &= 0xfe;
+	/* set local assignment bit (IEEE802) */
+	dev->net->dev_addr[0] |= 0x02;
+	return;
+
 	/* try reading mac address from EEPROM */
-	if (smsc95xx_read_eeprom(dev, EEPROM_MAC_OFFSET, ETH_ALEN,
+	if (0 && smsc95xx_read_eeprom(dev, EEPROM_MAC_OFFSET, ETH_ALEN,
 			dev->net->dev_addr) == 0) {
 		if (is_valid_ether_addr(dev->net->dev_addr)) {
 			/* eeprom values are valid so use them */
