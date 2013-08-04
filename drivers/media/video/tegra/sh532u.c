@@ -84,6 +84,10 @@
  * The board power file and <device>_vregs regulator ID strings must match.
  */
 
+// suppress bogus warning when compiling with gcc 4.3
+#if (__GNUC__ == 4 && __GNUC_MINOR__ == 5)
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 
 #include <linux/fs.h>
 #include <linux/i2c.h>
