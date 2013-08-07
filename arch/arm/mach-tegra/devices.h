@@ -17,6 +17,7 @@
  * GNU General Public License for more details.
  *
  */
+/*#define PRIMARY_DISP_HDMI*/
 
 #ifndef __MACH_TEGRA_DEVICES_H
 #define __MACH_TEGRA_DEVICES_H
@@ -131,7 +132,7 @@ extern struct platform_device debug_uarte_device;
 #endif
 
 extern struct nvhost_device tegra_disp1_device;
-#if 0
+#ifndef PRIMARY_DISP_HDMI
 extern struct nvhost_device tegra_disp2_device;
 #endif
 extern struct platform_device tegra_nvmap_device;

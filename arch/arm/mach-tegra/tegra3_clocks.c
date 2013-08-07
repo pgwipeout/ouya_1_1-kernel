@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
-#define PRIMARY_DISP_HDMI
+/*#define PRIMARY_DISP_HDMI*/
 
 #include <linux/kernel.h>
 #include <linux/module.h>
