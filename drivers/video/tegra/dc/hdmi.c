@@ -1490,7 +1490,7 @@ static irqreturn_t tegra_dc_hdmi_irq(int irq, void *ptr)
 					   msecs_to_jiffies(100));
 		else
 			queue_delayed_work(system_nrt_wq, &hdmi->work,
-					   msecs_to_jiffies(30));
+					   msecs_to_jiffies(2000));
 	}
 	spin_unlock_irqrestore(&hdmi->suspend_lock, flags);
 
@@ -1521,7 +1521,7 @@ static void tegra_dc_hdmi_resume(struct tegra_dc *dc)
 				   msecs_to_jiffies(100));
 	else
 		queue_delayed_work(system_nrt_wq, &hdmi->work,
-				   msecs_to_jiffies(30));
+				   msecs_to_jiffies(2000));
 
 	spin_unlock_irqrestore(&hdmi->suspend_lock, flags);
 	tegra_nvhdcp_resume(hdmi->nvhdcp);
