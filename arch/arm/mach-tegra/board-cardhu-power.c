@@ -1237,33 +1237,8 @@ int __init cardhu_edp_init(void)
 }
 #endif
 
-static char *cardhu_battery[] = {
-	"bq27510-0",
-};
-
-static struct gpio_charger_platform_data cardhu_charger_pdata = {
-	.name = "ac",
-	.type = POWER_SUPPLY_TYPE_MAINS,
-	.gpio = AC_PRESENT_GPIO,
-	.gpio_active_low = 0,
-	.supplied_to = cardhu_battery,
-	.num_supplicants = ARRAY_SIZE(cardhu_battery),
-};
-
-static struct platform_device cardhu_charger_device = {
-	.name = "gpio-charger",
-	.dev = {
-		.platform_data = &cardhu_charger_pdata,
-	},
-};
-
 static int __init cardhu_charger_late_init(void)
-{
-	if (!machine_is_cardhu())
-		return 0;
-
-	if(0) platform_device_register(&cardhu_charger_device);
-	
+{	
 	return 0;
 }
 
