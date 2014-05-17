@@ -56,8 +56,6 @@ struct tegra_fb_info {
 
 	int			xres;
 	int			yres;
-	int			curr_xoffset;
-	int			curr_yoffset;
 };
 
 /* palette array used by the fbcon */
@@ -78,20 +76,12 @@ static int tegra_fb_check_var(struct fb_var_screeninfo *var,
 	/* Apply mode filter for HDMI only -LVDS supports only fix mode */
 	if (ops && ops->mode_filter) {
 
-		/* xoffset and yoffset are not preserved by conversion
-		* to fb_videomode */
-		__u32 xoffset = var->xoffset;
-		__u32 yoffset = var->yoffset;
-
 		fb_var_to_videomode(&mode, var);
 		if (!ops->mode_filter(dc, &mode))
 			return -EINVAL;
 
 		/* Mode filter may have modified the mode */
 		fb_videomode_to_var(var, &mode);
-
-		var->xoffset = xoffset;
-		var->yoffset = yoffset;
 	}
 
 	/* Double yres_virtual to allow double buffering through pan_display */
@@ -303,29 +293,12 @@ static int tegra_fb_pan_display(struct fb_var_screeninfo *var,
 	char __iomem *flush_end;
 	u32 addr;
 
-	/*
-	 * Do nothing if display parameters are same as current values.
-	 */
-#if defined(CONFIG_ANDROID)
-	if ((var->xoffset == tegra_fb->curr_xoffset) &&
-	    (var->yoffset == tegra_fb->curr_yoffset) &&
-	    !(var->activate & FB_ACTIVATE_FORCE))
-		return 0;
-#endif
-
 	if (!tegra_fb->win->cur_handle) {
 		flush_start = info->screen_base + (var->yoffset * info->fix.line_length);
 		flush_end = flush_start + (var->yres * info->fix.line_length);
 
 		info->var.xoffset = var->xoffset;
 		info->var.yoffset = var->yoffset;
-
-		/*
-		 * Save previous values of xoffset and yoffset so we can
-		 * pan display only when needed.
-		 */
-		tegra_fb->curr_xoffset = var->xoffset;
-		tegra_fb->curr_yoffset = var->yoffset;
 
 		addr = info->fix.smem_start + (var->yoffset * info->fix.line_length) +
 			(var->xoffset * (var->bits_per_pixel/8));
@@ -562,7 +535,6 @@ struct tegra_fb_info *tegra_fb_register(struct nvhost_device *ndev,
 	tegra_fb->fb_mem = fb_mem;
 	tegra_fb->xres = fb_data->xres;
 	tegra_fb->yres = fb_data->yres;
-	tegra_fb->curr_xoffset = -1;
 
 	if (fb_mem) {
 		fb_size = resource_size(fb_mem);
