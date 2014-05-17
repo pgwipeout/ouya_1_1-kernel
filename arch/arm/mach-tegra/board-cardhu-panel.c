@@ -538,6 +538,19 @@ static struct resource cardhu_disp2_resources[] = {
 #ifdef PRIMARY_DISP_HDMI
 static struct tegra_dc_mode hdmi_panel_modes[] = {
 	{
+#ifdef CONFIG_TEGRA_HDMI_COMPAT_RES
+        .pclk = 74250000,
+        .h_ref_to_sync = 1,
+        .v_ref_to_sync = 1,
+        .h_sync_width = 40,
+        .v_sync_width = 5,
+        .h_back_porch = 220,
+        .v_back_porch = 20,
+        .h_active = 1280,
+        .v_active = 720,
+        .h_front_porch = 110,
+        .v_front_porch = 5,
+#else
         .pclk = 148500000,
         .h_ref_to_sync = 1,
         .v_ref_to_sync = 1,
@@ -549,6 +562,7 @@ static struct tegra_dc_mode hdmi_panel_modes[] = {
         .v_active = 1080,
         .h_front_porch = 88,
         .v_front_porch = 4,
+#endif
 	},
 };
 #endif
@@ -1486,8 +1500,13 @@ skip_lvds:
 	cardhu_disp1_device.resource = cardhu_disp1_hdmi_resources;
 	cardhu_disp1_device.num_resources = ARRAY_SIZE(cardhu_disp1_hdmi_resources);
 
+#ifdef CONFIG_TEGRA_HDMI_COMPAT_RES
+	cardhu_fb_data.xres = 1280;
+	cardhu_fb_data.yres = 720;
+#else
 	cardhu_fb_data.xres = 1920;
 	cardhu_fb_data.yres = 1080;
+#endif
 
 	cardhu_disp2_out.depth = 18;
 	cardhu_disp2_out.dither = TEGRA_DC_ORDERED_DITHER;

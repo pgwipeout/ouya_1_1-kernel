@@ -1296,6 +1296,10 @@ static bool tegra_dc_hdmi_mode_filter(const struct tegra_dc *dc,
 		if (PICOS2KHZ(mode->pixclock) > 74250)
 			return false;
 #endif
+#ifdef CONFIG_TEGRA_HDMI_COMPAT_RES
+		if (mode->xres != 1280)
+			return false;
+#endif
 
 	/* Check if the mode's pixel clock is more than the max rate*/
 	if (!tegra_dc_hdmi_valid_pixclock(dc, mode))
