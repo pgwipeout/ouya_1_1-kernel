@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  */
-#define PRIMARY_DISP_HDMI
+/*#define PRIMARY_DISP_HDMI*/
 
 
 #include <linux/resource.h>

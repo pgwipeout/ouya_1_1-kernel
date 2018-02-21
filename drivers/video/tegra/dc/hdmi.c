@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  */
-#define PRIMARY_DISP_HDMI
+/*#define PRIMARY_DISP_HDMI*/
 
 #include <linux/clk.h>
 #include <linux/delay.h>
@@ -1406,7 +1406,9 @@ fail:
 #ifdef CONFIG_SWITCH
 	switch_set_state(&hdmi->hpd_switch, 0);
 #endif
+#ifdef CONFIG_TEGRA_NVHDCP
 	tegra_nvhdcp_set_plug(hdmi->nvhdcp, 0);
+#endif
 	return false;
 }
 EXPORT_SYMBOL(tegra_dc_hdmi_detect_test);
@@ -1454,7 +1456,9 @@ fail:
 #ifdef CONFIG_SWITCH
 	switch_set_state(&hdmi->hpd_switch, 0);
 #endif
+#ifdef CONFIG_TEGRA_NVHDCP
 	tegra_nvhdcp_set_plug(hdmi->nvhdcp, 0);
+#endif
 	return false;
 }
 
@@ -1502,7 +1506,9 @@ static void tegra_dc_hdmi_suspend(struct tegra_dc *dc)
 	struct tegra_dc_hdmi_data *hdmi = tegra_dc_get_outdata(dc);
 	unsigned long flags;
 
+#ifdef CONFIG_TEGRA_NVHDCP
 	tegra_nvhdcp_suspend(hdmi->nvhdcp);
+#endif
 	spin_lock_irqsave(&hdmi->suspend_lock, flags);
 	hdmi->suspended = true;
 	spin_unlock_irqrestore(&hdmi->suspend_lock, flags);
@@ -1524,7 +1530,9 @@ static void tegra_dc_hdmi_resume(struct tegra_dc *dc)
 				   msecs_to_jiffies(30));
 
 	spin_unlock_irqrestore(&hdmi->suspend_lock, flags);
+#ifdef CONFIG_TEGRA_NVHDCP
 	tegra_nvhdcp_resume(hdmi->nvhdcp);
+#endif
 }
 
 #ifdef CONFIG_SWITCH
@@ -1630,7 +1638,6 @@ static int tegra_dc_hdmi_init(struct tegra_dc *dc)
 	}
 #endif
 
-#if 0
 	/* TODO: support non-hotplug */
 	if (request_irq(gpio_to_irq(dc->out->hotplug_gpio), tegra_dc_hdmi_irq,
 			IRQF_DISABLED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
@@ -1640,7 +1647,6 @@ static int tegra_dc_hdmi_init(struct tegra_dc *dc)
 		err = -EBUSY;
 		goto err_put_clock;
 	}
-#endif
 
 	hdmi->edid = tegra_edid_create(dc->out->dcc_bus);
 	if (IS_ERR_OR_NULL(hdmi->edid)) {
@@ -1693,6 +1699,7 @@ static int tegra_dc_hdmi_init(struct tegra_dc *dc)
 	tegra_dc_set_outdata(dc, hdmi);
 
 	dc_hdmi = hdmi;
+#ifdef CONFIG_TEGRA_NVHDCP
 	/* boards can select default content protection policy */
 	if (dc->out->flags & TEGRA_DC_OUT_NVHDCP_POLICY_ON_DEMAND)
 		tegra_nvhdcp_set_policy(hdmi->nvhdcp,
@@ -1700,20 +1707,9 @@ static int tegra_dc_hdmi_init(struct tegra_dc *dc)
 	else
 		tegra_nvhdcp_set_policy(hdmi->nvhdcp,
 			TEGRA_NVHDCP_POLICY_ALWAYS_ON);
-
+#endif
 	tegra_dc_hdmi_debug_create(hdmi);
 
-#if 1
-	/* TODO: support non-hotplug */
-	if (request_irq(gpio_to_irq(dc->out->hotplug_gpio), tegra_dc_hdmi_irq,
-			IRQF_DISABLED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-			dev_name(&dc->ndev->dev), dc)) {
-		dev_err(&dc->ndev->dev, "hdmi: request_irq %d failed\n",
-			gpio_to_irq(dc->out->hotplug_gpio));
-		err = -EBUSY;
-		goto err_put_clock;
-	}
-#endif
 	return 0;
 
 #ifdef CONFIG_TEGRA_NVHDCP
@@ -1770,8 +1766,9 @@ static void tegra_dc_hdmi_destroy(struct tegra_dc *dc)
 	clk_put(hdmi->disp2_clk);
 #endif
 	tegra_edid_destroy(hdmi->edid);
+#ifdef CONFIG_TEGRA_NVHDCP
 	tegra_nvhdcp_destroy(hdmi->nvhdcp);
-
+#endif
 	kfree(hdmi);
 
 }
@@ -2161,17 +2158,15 @@ static void tegra_dc_hdmi_setup_avi_infoframe(struct tegra_dc *dc, bool dvi)
 				avi.vic = 16; /* 60 Hz */
 			else
 				avi.vic = 34; /* 30 Hz */
-		} else if (dc->mode.h_front_porch == 528) {
-			if (dc->mode.pclk > 74250000)
-				avi.vic = 31; /* 50 Hz */
-			else
-				avi.vic = 33; /* 25 Hz */
-		} else
+		} else if (dc->mode.h_front_porch == 528)
+			avi.vic = 31; /* 50 Hz */
+		else
 			avi.vic = 32; /* 24 Hz */
 	} else {
 		avi.m = HDMI_AVI_M_16_9;
 		avi.vic = 0;
 	}
+
 
 	tegra_dc_hdmi_write_infopack(dc, HDMI_NV_PDISP_HDMI_AVI_INFOFRAME_HEADER,
 				     HDMI_INFOFRAME_TYPE_AVI,
@@ -2477,15 +2472,18 @@ static void tegra_dc_hdmi_enable(struct tegra_dc *dc)
 	tegra_dc_writel(dc, GENERAL_ACT_REQ << 8, DC_CMD_STATE_CONTROL);
 	tegra_dc_writel(dc, GENERAL_ACT_REQ, DC_CMD_STATE_CONTROL);
 
+#ifdef CONFIG_TEGRA_NVHDCP
 	tegra_nvhdcp_set_plug(hdmi->nvhdcp, 1);
+#endif
 }
 
 static void tegra_dc_hdmi_disable(struct tegra_dc *dc)
 {
 	struct tegra_dc_hdmi_data *hdmi = tegra_dc_get_outdata(dc);
 
+#ifdef CONFIG_TEGRA_NVHDCP
 	tegra_nvhdcp_set_plug(hdmi->nvhdcp, 0);
-
+#endif
 #if !defined(CONFIG_ARCH_TEGRA_2x_SOC)
 	tegra_hdmi_writel(hdmi, 0, HDMI_NV_PDISP_SOR_AUDIO_HDA_PRESENSE_0);
 	/* sleep 1ms before disabling clocks to ensure HDA gets the interrupt */
