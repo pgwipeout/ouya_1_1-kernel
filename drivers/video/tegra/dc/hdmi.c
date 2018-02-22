@@ -4,7 +4,7 @@
  * Copyright (C) 2010 Google, Inc.
  * Author: Erik Gilling <konkers@android.com>
  *
- * Copyright (c) 2010-2012, NVIDIA CORPORATION, All rights reserved.
+ * Copyright (c) 2010-2013, NVIDIA CORPORATION, All rights reserved.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -960,6 +960,7 @@ static const struct tegra_hdmi_audio_config
 		return NULL;
 	}
 
+#if 0
 	while (table->pix_clock) {
 		if (table->pix_clock == pix_clock)
 			return table;
@@ -967,6 +968,9 @@ static const struct tegra_hdmi_audio_config
 	}
 
 	return NULL;
+#else
+	return table;
+#endif
 }
 
 
@@ -1262,7 +1266,8 @@ static bool tegra_dc_hdmi_valid_asp_ratio(const struct tegra_dc *dc,
 	int s_aspratio = 0;
 
 	/* To check the aspect upto two decimal digits, calculate in % */
-	m_aspratio = (mode->xres*100 / mode->yres);
+	if (mode->yres)
+		m_aspratio = (mode->xres*100 / mode->yres);
 
 	if ((m_aspratio < TEGRA_DC_HDMI_MIN_ASPECT_RATIO_PERCENT) ||
 			(m_aspratio > TEGRA_DC_HDMI_MAX_ASPECT_RATIO_PERCENT))
@@ -1294,6 +1299,10 @@ static bool tegra_dc_hdmi_mode_filter(const struct tegra_dc *dc,
 
 #ifdef CONFIG_TEGRA_HDMI_74MHZ_LIMIT
 		if (PICOS2KHZ(mode->pixclock) > 74250)
+			return false;
+#endif
+#ifdef CONFIG_TEGRA_HDMI_COMPAT_RES
+		if (mode->xres != 1280)
 			return false;
 #endif
 

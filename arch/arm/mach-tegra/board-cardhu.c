@@ -1587,6 +1587,8 @@ static void cardhu_sata_init(void)
 static void cardhu_sata_init(void) { }
 #endif
 
+extern void bluesleep_setup_uart_port(struct platform_device *uart_dev);
+
 static void __init tegra_cardhu_init(void)
 {
 	tegra_thermal_init(&thermal_data,
@@ -1619,6 +1621,7 @@ if (0)	cardhu_pmon_init();
 	cardhu_sensors_init();
 #ifdef CONFIG_BT_BLUESLEEP
 	cardhu_setup_bluesleep();
+	bluesleep_setup_uart_port(&tegra_uartc_device);
 #elif defined CONFIG_BLUEDROID_PM
 	cardhu_setup_bluedroid_pm();
 #endif

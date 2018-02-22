@@ -293,3 +293,9 @@ config TEGRA_BPC_MGMT
 	help
 	  This driver reduces cpu frequency/voltage on gpio event from the
 	  battery current monitor device.
+
+config BATTERY_ANDROID_DUMMY
+	tristate "Android battery dummy for AC powered devices"
+	depends on I2C
+	help
+	  Use this diver to fake a battery.

@@ -180,5 +180,12 @@ config TEGRA_HDMI_74MHZ_LIMIT
 	  Say Y here to make kernel report only low bandwidth modes.
 	  Useful only for boards which can't deliver 148.50 MHz.
 
+config TEGRA_HDMI_COMPAT_RES
+	bool "Use compatibility resolution for HDMI-only devices"
+	default n
+	help
+	  Say Y here to build with compatibility resolution for HDMI-only
+	  devices. Display init will be @ 1280x720 instead of 1920x1080.
+
 endif
 

@@ -768,11 +768,13 @@ static struct nct1008_platform_data cardhu_nct1008_pdata = {
 	.probe_callback = nct1008_probe_callback,
 };
 
+#if 0
 static struct i2c_board_info cardhu_i2c4_bq27510_board_info[] = {
 	{
 		I2C_BOARD_INFO("bq27510", 0x55),
 	},
 };
+#endif
 
 static struct i2c_board_info cardhu_i2c4_nct1008_board_info[] = {
 	{
@@ -1037,9 +1039,11 @@ if (0) {
 #endif
 	pmu_tca6416_init();
 
+#if 0
 	if (board_info.board_id == BOARD_E1291)
 		i2c_register_board_info(4, cardhu_i2c4_bq27510_board_info,
 			ARRAY_SIZE(cardhu_i2c4_bq27510_board_info));
+#endif
 
 	if (board_info.sku == BOARD_SKU_B11)
 		i2c_register_board_info(2, cardhu_i2c2_ltr_board_info,
